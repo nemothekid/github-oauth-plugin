@@ -61,6 +61,7 @@ public class GithubRequireOrganizationMembershipACL extends ACL {
 	private final boolean allowGithubWebHookPermission;
     private final boolean allowCcTrayPermission;
     private final boolean allowAnonymousReadPermission;
+    private final boolean allowAnonymousJobStatusPermission;
     private final AbstractProject project;
 
 	/*
@@ -157,6 +158,10 @@ public class GithubRequireOrganizationMembershipACL extends ACL {
 			}
 
 			if (authenticatedUserName.equals("anonymous")) {
+				if(checkJobStatusPermission(permission) && this.allowAnonymousJobStatusPermission) {
+					return true;
+				}
+
 				if (checkReadPermission(permission)) {
 					if (allowAnonymousReadPermission) {
 						return true;
@@ -223,6 +228,10 @@ public class GithubRequireOrganizationMembershipACL extends ACL {
 			return false;
 	}
 
+    private boolean checkJobStatusPermission(Permission permission) {
+        return permission.getId().equals("hudson.model.Item.ViewStatus");
+    }
+
     public boolean hasRepositoryPermission(GithubAuthenticationToken authenticationToken, Permission permission) {
         String repositoryName = getRepositoryName();
 
@@ -270,7 +279,8 @@ public class GithubRequireOrganizationMembershipACL extends ACL {
                         boolean authenticatedUserCreateJobPermission,
 			boolean allowGithubWebHookPermission,
             boolean allowCcTrayPermission,
-			boolean allowAnonymousReadPermission) {
+			boolean allowAnonymousReadPermission,
+			boolean allowAnonymousJobStatusPermission) {
 		super();
 		this.authenticatedUserReadPermission = authenticatedUserReadPermission;
                 this.useRepositoryPermissions = useRepositoryPermissions;
@@ -278,6 +288,7 @@ public class GithubRequireOrganizationMembershipACL extends ACL {
 		this.allowGithubWebHookPermission = allowGithubWebHookPermission;
         this.allowCcTrayPermission = allowCcTrayPermission;
         this.allowAnonymousReadPermission = allowAnonymousReadPermission;
+        this.allowAnonymousJobStatusPermission = allowAnonymousJobStatusPermission;
 
 		this.adminUserNameList = new LinkedList<String>();
 
@@ -306,6 +317,7 @@ public class GithubRequireOrganizationMembershipACL extends ACL {
 			boolean allowGithubWebHookPermission,
             boolean allowCcTrayPermission,
 			boolean allowAnonymousReadPermission,
+			boolean allowAnonymousJobStatusPermission,
 			AbstractProject project) {
 		super();
 		this.adminUserNameList = adminUserNameList;
@@ -316,6 +328,7 @@ public class GithubRequireOrganizationMembershipACL extends ACL {
 		this.allowGithubWebHookPermission = allowGithubWebHookPermission;
         this.allowCcTrayPermission = allowCcTrayPermission;
         this.allowAnonymousReadPermission = allowAnonymousReadPermission;
+        this.allowAnonymousJobStatusPermission = allowAnonymousJobStatusPermission;
 		this.project = project;
 	}
 
@@ -329,6 +342,7 @@ public class GithubRequireOrganizationMembershipACL extends ACL {
 			this.allowGithubWebHookPermission,
             this.allowCcTrayPermission,
 			this.allowAnonymousReadPermission,
+			this.allowAnonymousJobStatusPermission,
 			project);
 	}
 
@@ -367,4 +381,7 @@ public class GithubRequireOrganizationMembershipACL extends ACL {
 		return allowAnonymousReadPermission;
 	}
 
+	public boolean isAllowAnonymousJobStatusPermission() {
+		return allowAnonymousJobStatusPermission;
+	}
 }
